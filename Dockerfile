@@ -20,8 +20,5 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python
 RUN mkdir -p /home/node/.n8n && \
     chown -R node:node /home/node/.n8n
 
-# 6. Switch back to node user
-USER node
-
 # 7. Force the Python path for n8n
 ENV N8N_PYTHON_BINARY=/usr/bin/python3
