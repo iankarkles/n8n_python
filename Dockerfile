@@ -1,18 +1,27 @@
+# 1. Base Image
 FROM n8nio/n8n:latest
 
+# 2. Switch to Root
 USER root
 
-# 1. Install Python3 and PIP
-# We also verify no cache is kept to keep image small
-RUN apk add --update --no-cache python3 py3-pip
+# 3. Install Python 3, PIP, and Dev Tools (Crucial for venv creation)
+RUN apk add --update --no-cache \
+    python3 \
+    py3-pip \
+    python3-dev \
+    build-base \
+    bash
 
-# 2. CRITICAL: Create a symlink for 'python' -> 'python3'
-# Some internal n8n scripts call 'python' directly
+# 4. Create symlink so 'python' points to 'python3'
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 
-# 3. CRITICAL: Pre-create the directory n8n uses for python envs
-# and give ownership to the 'node' user to prevent permission errors
-RUN mkdir -p /home/node/.n8n/python_env \
-    && chown -R node:node /home/node/.n8n
+# 5. Pre-create the n8n directory and give 'node' user ownership
+# This prevents permission errors when n8n tries to write the venv
+RUN mkdir -p /home/node/.n8n && \
+    chown -R node:node /home/node/.n8n
 
+# 6. Switch back to node user
 USER node
+
+# 7. Force the Python path for n8n
+ENV N8N_PYTHON_BINARY=/usr/bin/python3
